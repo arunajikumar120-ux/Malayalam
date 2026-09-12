@@ -2,33 +2,608 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Malayalam Music App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MelodyNest Mobile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --bg-dark: #090d16;
+            --bg-card: #121826;
+            --accent-blue: #5b6cf9;
+            --accent-glow: rgba(91, 108, 249, 0.4);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --border: rgba(255, 255, 255, 0.08);
+            --card-radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #121212;
-            color: #ffffff;
-            text-align: center;
-            padding: 20px;
-        }
-        h1 {
-            color: #1db954;
-        }
-        .container {
-            max-width: 600px;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            padding: 12px;
+            padding-bottom: 150px;
+            max-width: 480px;
             margin: 0 auto;
-            background: #1e1e1e;
-            padding: 20px;
-            border-radius: 10px;
         }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 4px 12px 4px;
+        }
+
+        .brand { display: flex; align-items: center; gap: 10px; }
+        .brand-logo {
+            width: 36px; height: 36px;
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            color: #fff; font-size: 16px;
+        }
+
+        .brand-text h1 { font-size: 18px; font-weight: 700; line-height: 1; }
+        .brand-text h1 span { color: var(--accent-blue); }
+        .brand-text p { font-size: 9px; color: var(--text-sub); margin-top: 3px; letter-spacing: 0.5px; }
+
+        .hero-banner {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(18, 24, 38, 0.95) 100%), 
+                        url('https://images.unsplash.com/photo-1518241353330-0f7941c2d9b5?auto=format&fit=crop&w=800&q=80') center/cover;
+            border-radius: 20px; padding: 20px; border: 1px solid var(--border); margin-bottom: 20px;
+        }
+
+        .hero-tag { font-size: 10px; font-weight: 700; color: #a5b4fc; text-transform: uppercase; }
+        .hero-title { font-size: 22px; font-weight: 800; margin: 4px 0 8px 0; }
+        .hero-title span { color: var(--accent-blue); }
+        .hero-desc { font-size: 11px; color: #cbd5e1; line-height: 1.4; margin-bottom: 16px; }
+
+        .folder-btn-input {
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            background: linear-gradient(135deg, #5b6cf9, #4f46e5); color: #fff;
+            padding: 12px; border-radius: 30px; font-size: 13px; font-weight: 600; cursor: pointer;
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        #file-input { display: none; }
+
+        .section-title { font-size: 15px; font-weight: 700; margin: 20px 0 12px 0; display: flex; align-items: center; justify-content: space-between; }
+
+        /* FOLDERS VIEW */
+        .folders-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .folder-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .folder-card:active { transform: scale(0.97); }
+        .folder-icon { font-size: 24px; color: #f59e0b; }
+        .folder-card:nth-child(2) .folder-icon { color: var(--accent-blue); }
+        .folder-info h3 { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+        .folder-info p { font-size: 10px; color: var(--text-sub); }
+
+        .back-folder-btn {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); color: var(--text-main);
+            padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: 600; cursor: pointer;
+            display: none; align-items: center; gap: 6px; margin-bottom: 10px;
+        }
+
+        /* SLEEP TIMER CARD UI */
+        .timer-card {
+            background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 16px; margin-bottom: 20px;
+        }
+        .timer-header { display: flex; align-items: center; justify-content: space-between; font-size: 14px; font-weight: 700; margin-bottom: 12px; }
+        .timer-header i { color: #f59e0b; margin-right: 6px; }
+        .timer-status { font-size: 11px; color: var(--accent-blue); font-weight: 600; }
+        
+        .timer-options { display: flex; gap: 8px; }
+        .timer-btn {
+            flex: 1; padding: 10px; background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border);
+            border-radius: 12px; color: var(--text-main); font-size: 11px; font-weight: 600; cursor: pointer; text-align: center;
+        }
+        .timer-btn.active { background: var(--accent-blue); border-color: var(--accent-blue); }
+
+        /* AMBIENCE MIXER */
+        .mix-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 16px; margin-bottom: 20px; }
+        .mix-header { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 700; margin-bottom: 16px; }
+
+        .sound-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+        .sound-info { display: flex; align-items: center; gap: 10px; width: 110px; font-size: 12px; font-weight: 600; }
+        .sound-info i { color: var(--accent-blue); width: 16px; text-align: center; }
+        .slider-wrapper { flex: 1; margin: 0 10px; }
+
+        input[type="range"] { width: 100%; height: 5px; border-radius: 3px; background: #1e293b; appearance: none; outline: none; }
+        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent-blue); cursor: pointer; }
+        .val-indicator { font-size: 11px; color: var(--text-sub); width: 32px; text-align: right; }
+
+        .stop-action-btn {
+            width: 100%; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171;
+            padding: 10px; border-radius: 12px; font-size: 11px; font-weight: 700; cursor: pointer; margin-top: 5px;
+        }
+
+        /* SEARCH BAR */
+        .search-box {
+            display: flex; align-items: center; background: var(--bg-card); border: 1px solid var(--border);
+            border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; gap: 10px;
+        }
+        .search-box i { color: var(--text-sub); font-size: 14px; }
+        .search-box input {
+            background: transparent; border: none; outline: none; color: #fff; font-size: 12px; width: 100%;
+        }
+
+        /* PLAYLIST */
+        .playlist-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--card-radius); padding: 14px; margin-bottom: 20px; }
+        .song-list { display: flex; flex-direction: column; gap: 8px; max-height: 350px; overflow-y: auto; }
+
+        .song-item {
+            display: flex; align-items: center; justify-content: space-between; padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.02); border-radius: 10px; border: 1px solid var(--border); cursor: pointer;
+        }
+        .song-item.active { background: rgba(91, 108, 249, 0.15); border-color: var(--accent-blue); }
+        .song-title-text { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 240px; }
+
+        /* BOTTOM PLAYER */
+        .bottom-player {
+            position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto;
+            background: rgba(18, 24, 38, 0.95); backdrop-filter: blur(16px); border-top: 1px solid var(--border);
+            padding: 10px 14px; z-index: 1000; display: flex; flex-direction: column; gap: 8px;
+        }
+
+        .player-top { display: flex; align-items: center; justify-content: space-between; }
+        .track-meta { display: flex; align-items: center; gap: 10px; max-width: 60%; }
+        .track-img {
+            width: 40px; height: 40px; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #6366f1);
+            display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; flex-shrink: 0;
+        }
+
+        .track-details h4 { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .track-details p { font-size: 10px; color: var(--text-sub); }
+
+        .player-controls { display: flex; align-items: center; gap: 16px; font-size: 18px; }
+        .play-btn { width: 38px; height: 38px; border-radius: 50%; background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer; }
+
+        .progress-bar-row { display: flex; align-items: center; gap: 8px; font-size: 10px; color: var(--text-sub); }
+        .progress-bar-row input[type="range"] { flex: 1; height: 4px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Malayalam Music Player</h1>
-        <p>Welcome to your customized music app!</p>
+
+    <audio id="main-audio" preload="auto"></audio>
+
+    <audio id="bg-rain" loop src="https://assets.mixkit.co/active_storage/sfx/1250/1250-preview.mp3"></audio>
+    <audio id="bg-thunder" loop src="https://assets.mixkit.co/active_storage/sfx/1271/1271-preview.mp3"></audio>
+    <audio id="bg-ocean" loop src="https://assets.mixkit.co/active_storage/sfx/1188/1188-preview.mp3"></audio>
+    <audio id="bg-fire" loop src="https://assets.mixkit.co/active_storage/sfx/2670/2670-preview.mp3"></audio>
+    <audio id="bg-crickets" loop src="https://assets.mixkit.co/active_storage/sfx/2672/2672-preview.mp3"></audio>
+
+    <div class="header">
+        <div class="brand">
+            <div class="brand-logo"><i class="fa-solid fa-water"></i></div>
+            <div class="brand-text">
+                <h1>Melody <span>Nest</span></h1>
+                <p>LISTEN • RELAX • SLEEP</p>
+            </div>
+        </div>
     </div>
+
+    <div class="hero-banner">
+        <div class="hero-tag">Your Peaceful Soundtrack</div>
+        <div class="hero-title">Melody <span>Nest</span></div>
+        <div class="hero-desc">Select a folder below or upload songs from your device.</div>
+
+        <label class="folder-btn-input" for="file-input">
+            <i class="fa-solid fa-folder-open"></i> Add Local Songs
+        </label>
+        <input type="file" id="file-input" multiple accept="audio/*">
+    </div>
+
+    <!-- FOLDERS SECTION -->
+    <div class="section-title">Categories / Folders</div>
+    <div class="folders-container" id="folders-view">
+        <div class="folder-card" onclick="openFolder('demo')">
+            <div class="folder-icon"><i class="fa-solid fa-folder-closed"></i></div>
+            <div class="folder-info">
+                <h3>Demo Songs</h3>
+                <p id="demo-count">10 Tracks</p>
+            </div>
+        </div>
+        <div class="folder-card" onclick="openFolder('github')">
+            <div class="folder-icon"><i class="fa-solid fa-folder-closed" style="color:var(--accent-blue);"></i></div>
+            <div class="folder-info">
+                <h3>GitHub Malayalam</h3>
+                <p id="github-count">88+ Tracks</p>
+            </div>
+        </div>
+    </div>
+
+    <button class="back-folder-btn" id="back-btn" onclick="showFoldersView()"><i class="fa-solid fa-arrow-left"></i> Back to Folders</button>
+
+    <!-- SLEEP TIMER CARD -->
+    <div class="timer-card">
+        <div class="timer-header">
+            <div><i class="fa-solid fa-moon"></i> Sleep Timer</div>
+            <div class="timer-status" id="timer-display">Off</div>
+        </div>
+        <div class="timer-options">
+            <div class="timer-btn" onclick="setSleepTimer(15, this)">15 Mins</div>
+            <div class="timer-btn" onclick="setSleepTimer(30, this)">30 Mins</div>
+            <div class="timer-btn" onclick="setSleepTimer(45, this)">45 Mins</div>
+            <div class="timer-btn" onclick="setSleepTimer(60, this)">60 Mins</div>
+            <div class="timer-btn" onclick="cancelSleepTimer(this)" style="color:#f87171;">Off</div>
+        </div>
+    </div>
+
+    <div class="section-title">Real Nature Soundscapes</div>
+    <div class="mix-panel">
+        <div class="mix-header">
+            <i class="fa-solid fa-sliders" style="color:var(--accent-blue);"></i> Ambience Mixer
+        </div>
+
+        <div class="sound-row">
+            <div class="sound-info"><i class="fa-solid fa-cloud-rain"></i> Soft Rain</div>
+            <div class="slider-wrapper"><input type="range" id="vol-rain" min="0" max="100" value="0" oninput="setBgSound('rain', this.value)"></div>
+            <div class="val-indicator" id="txt-rain">0%</div>
+        </div>
+
+        <div class="sound-row">
+            <div class="sound-info"><i class="fa-solid fa-cloud-bolt"></i> Thunderstorm</div>
+            <div class="slider-wrapper"><input type="range" id="vol-thunder" min="0" max="100" value="0" oninput="setBgSound('thunder', this.value)"></div>
+            <div class="val-indicator" id="txt-thunder">0%</div>
+        </div>
+
+        <div class="sound-row">
+            <div class="sound-info"><i class="fa-solid fa-water"></i> Ocean Waves</div>
+            <div class="slider-wrapper"><input type="range" id="vol-ocean" min="0" max="100" value="0" oninput="setBgSound('ocean', this.value)"></div>
+            <div class="val-indicator" id="txt-ocean">0%</div>
+        </div>
+
+        <div class="sound-row">
+            <div class="sound-info"><i class="fa-solid fa-fire"></i> Fireplace</div>
+            <div class="slider-wrapper"><input type="range" id="vol-fire" min="0" max="100" value="0" oninput="setBgSound('fire', this.value)"></div>
+            <div class="val-indicator" id="txt-fire">0%</div>
+        </div>
+
+        <div class="sound-row">
+            <div class="sound-info"><i class="fa-solid fa-bug"></i> Crickets</div>
+            <div class="slider-wrapper"><input type="range" id="vol-crickets" min="0" max="100" value="0" oninput="setBgSound('crickets', this.value)"></div>
+            <div class="val-indicator" id="txt-crickets">0%</div>
+        </div>
+
+        <button class="stop-action-btn" onclick="stopAllBg()"><i class="fa-solid fa-power-off"></i> STOP ALL BACKGROUND SOUNDS</button>
+    </div>
+
+    <!-- SEARCH BAR & PLAYLIST -->
+    <div class="section-title">
+        <span id="playlist-title">Select a folder to view songs</span>
+    </div>
+
+    <div class="search-box">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="search-input" placeholder="Search songs..." onkeyup="filterSongs()">
+    </div>
+
+    <div class="playlist-card">
+        <div class="song-list" id="playlist-container">
+            <p style="font-size:11px; color:var(--text-sub); text-align:center; padding:15px;">Please click on 'Demo Songs' or 'GitHub Malayalam' above.</p>
+        </div>
+    </div>
+
+    <div class="bottom-player">
+        <div class="player-top">
+            <div class="track-meta">
+                <div class="track-img"><i class="fa-solid fa-music"></i></div>
+                <div class="track-details">
+                    <h4 id="now-title">No Song Selected</h4>
+                    <p id="now-sub">MelodyNest Player</p>
+                </div>
+            </div>
+
+            <div class="player-controls">
+                <i class="fa-solid fa-backward-step" onclick="prevSong()" style="cursor:pointer;"></i>
+                <div class="play-btn" onclick="togglePlay()"><i class="fa-solid fa-play" id="main-play-btn"></i></div>
+                <i class="fa-solid fa-forward-step" onclick="nextSong()" style="cursor:pointer;"></i>
+            </div>
+        </div>
+
+        <div class="progress-bar-row">
+            <span id="curr-time">00:00</span>
+            <input type="range" id="seek-bar" value="0" min="0" max="100" oninput="seekTrack(this.value)">
+            <span id="dur-time">00:00</span>
+        </div>
+    </div>
+
+    <script>
+        const demoSongs = [
+            { name: "01. Deep Relaxation Ambience", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+            { name: "02. Peaceful Mind Piano", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+            { name: "03. Soft Meditation Melodies", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+            { name: "04. Midnight Sleep Acoustic", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3" },
+            { name: "05. Evening Calm Strings", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3" },
+            { name: "06. Heavenly Breeze Harmony", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3" },
+            { name: "07. Gentle River Flow", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3" },
+            { name: "08. Starlight Chill Waves", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3" },
+            { name: "09. Dreamy Night Solitude", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3" },
+            { name: "10. Serene Forest Acoustic", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" }
+        ];
+
+        // GitHub links optimized with raw.githubusercontent.com and connection fallback bypass
+        const githubSongs = [
+            { name: "Aalamadankala Mythavanalie", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Aalamadankala%20Mythavanalie.mp3" },
+            { name: "Ammoommakkili", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Ammoommakkili(MalluMusic.Net).mp3" },
+            { name: "Chempoove-Poove", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Chempoove-Poove(MalluMusic.Net).mp3" },
+            { name: "Dinkin Pattalam", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Dinkin%20Pattalam.mp3" },
+            { name: "Ennalle muttathu", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Ennalle%20muttathu.mp3" },
+            { name: "KARINEELA-MG SRE", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/KARINEELA-MG%20SRE.mp3" },
+            { name: "Kaadezhu Kadalezhu Oru Pen", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Kaadezhu_Kadalezhu_-_Oru_Pen.mp3" },
+            { name: "Kaattupenninte", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Kaattupenninte(MalluLuv.Com).mp3" },
+            { name: "Kadalinakkare Ponore", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Kadalinakkare%20Ponore%20-%20Malayala....mp3" },
+            { name: "Kaikottu Penne", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Kaikottu%20Penne%20-%20Karumadikuttan....mp3" },
+            { name: "Kaithudi Thalam", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Kaithudi-Thalam-Afsal.mp3" },
+            { name: "Kannadii", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Kannadii(MalluMusic.Net).mp3" },
+            { name: "Kannae Kakka ponnae", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Kannae%20Kakka%20ponnae.mp3" },
+            { name: "Kannaram", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Kannaram(MalluMusic.Net).mp3" },
+            { name: "Aalavattom Jayikkaanai Janichavan", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/aalavattom_jayikkaanai_janichav....mp3" },
+            { name: "Aattu Vanchi Kadavil Vachu", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/aattu_vanchii_kadavil_vachu_KJY....mp3" },
+            { name: "Asvani Ponnoonjaal Kottaram", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/asvani_ponnoonjaal_kottaram_v....mp3" },
+            { name: "Achankovilaattile Kocholangale", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/achankovilaattile_kocholangale_....mp3" },
+            { name: "Bambatu Hudugi", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/bambatu_hudugi.mp3" },
+            { name: "Chandrikayil Aliyunnu Chandrakantham", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/chandrikayil_aliyunnu_chandraka....mp3" },
+            { name: "Chilambolikkate C I D Moosa", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/chilambolikkate_c_i_d_moosa_m....mp3" },
+            { name: "Ellarum Chollanu Neelakuyil", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/ellarum_chollanu_neelakuyil.mp3" },
+            { name: "Kadamizhiyill Kamaladhalam", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/kadamizhiyill_kamaladhalam_hd_....mp3" },
+            { name: "Kakkala Kannamma Oru Yathra", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/kakkala_kannamma_oru_yathra_....mp3" },
+            { name: "Kandu Rendukannu Malayalam", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/kandu_rendu_kannu_malayalam_....mp3" },
+            { name: "Kannadikkoodum Kootti", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/kannadikkoodum_kootti.mp3" },
+            { name: "Kannal Mizhi Kanimalare", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/kannal_mizhi_kanimalare_thach....mp3" }
+        ];
+
+        let activeFolder = null;
+        let currentPlaylist = [];
+        let curIndex = 0;
+        let timerInterval = null;
+        let sleepTimeLeft = 0;
+
+        const mainAudio = document.getElementById('main-audio');
+        const playBtn = document.getElementById('main-play-btn');
+        const playlistBox = document.getElementById('playlist-container');
+
+        window.onload = function() {
+            document.getElementById('demo-count').innerText = `${demoSongs.length} Tracks`;
+            document.getElementById('github-count').innerText = `${githubSongs.length} Tracks`;
+        };
+
+        function openFolder(type) {
+            activeFolder = type;
+            if (type === 'demo') {
+                currentPlaylist = [...demoSongs];
+                document.getElementById('playlist-title').innerText = "Demo Songs Playlist (" + currentPlaylist.length + ")";
+            } else if (type === 'github') {
+                currentPlaylist = [...githubSongs];
+                document.getElementById('playlist-title').innerText = "GitHub Malayalam Playlist (" + currentPlaylist.length + ")";
+            }
+
+            document.getElementById('back-btn').style.display = 'flex';
+            document.getElementById('folders-view').style.display = 'none';
+            renderPlaylist(currentPlaylist);
+        }
+
+        function showFoldersView() {
+            activeFolder = null;
+            document.getElementById('back-btn').style.display = 'none';
+            document.getElementById('folders-view').style.display = 'grid';
+            document.getElementById('playlist-title').innerText = "Select a folder to view songs";
+            playlistBox.innerHTML = `<p style="font-size:11px; color:var(--text-sub); text-align:center; padding:15px;">Please click on 'Demo Songs' or 'GitHub Malayalam' above.</p>`;
+        }
+
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (!files || files.length === 0) return;
+
+            const localAdded = Array.from(files).map(f => ({
+                name: f.name.replace(/\.[^/.]+$/, ""),
+                url: URL.createObjectURL(f)
+            }));
+
+            currentPlaylist = [...localAdded, ...currentPlaylist];
+            renderPlaylist(currentPlaylist);
+            if (currentPlaylist.length > 0) loadTrack(0);
+            e.target.value = '';
+        });
+
+        function renderPlaylist(list) {
+            playlistBox.innerHTML = '';
+            if (list.length === 0) {
+                playlistBox.innerHTML = `<p style="font-size:11px; color:var(--text-sub); text-align:center; padding:15px;">No songs found.</p>`;
+                return;
+            }
+
+            list.forEach((s, idx) => {
+                const item = document.createElement('div');
+                item.className = `song-item ${idx === curIndex && activeFolder ? 'active' : ''}`;
+                item.id = `song-${idx}`;
+                item.onclick = () => loadTrack(idx);
+                item.innerHTML = `
+                    <span class="song-title-text"><i class="fa-solid fa-music" style="margin-right:8px; color:var(--text-sub);"></i>${s.name}</span>
+                    <i class="fa-solid fa-play" style="color: var(--accent-blue); font-size: 11px;"></i>
+                `;
+                playlistBox.appendChild(item);
+            });
+        }
+
+        function filterSongs() {
+            if (!activeFolder) return;
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = currentPlaylist.filter(s => s.name.toLowerCase().includes(query));
+            
+            playlistBox.innerHTML = '';
+            filtered.forEach((s) => {
+                const originalIndex = currentPlaylist.indexOf(s);
+                const item = document.createElement('div');
+                item.className = `song-item ${originalIndex === curIndex ? 'active' : ''}`;
+                item.onclick = () => loadTrack(originalIndex);
+                item.innerHTML = `
+                    <span class="song-title-text"><i class="fa-solid fa-music" style="margin-right:8px; color:var(--text-sub);"></i>${s.name}</span>
+                    <i class="fa-solid fa-play" style="color: var(--accent-blue); font-size: 11px;"></i>
+                `;
+                playlistBox.appendChild(item);
+            });
+        }
+
+        function loadTrack(index) {
+            if (currentPlaylist.length === 0) return;
+            curIndex = index;
+
+            document.querySelectorAll('.song-item').forEach(el => el.classList.remove('active'));
+            const row = document.getElementById(`song-${index}`);
+            if (row) row.classList.add('active');
+
+            const item = currentPlaylist[curIndex];
+            
+            // Adding a bypass parameter for GitHub links to prevent loading timeout errors
+            let playUrl = item.url;
+            if (playUrl.includes('githubusercontent.com')) {
+                playUrl += (playUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
+            }
+
+            mainAudio.src = playUrl;
+            document.getElementById('now-title').innerText = item.name;
+            document.getElementById('now-sub').innerText = `Playing ${curIndex + 1} of ${currentPlaylist.length}`;
+
+            mainAudio.load();
+            mainAudio.play().then(() => {
+                playBtn.className = "fa-solid fa-pause";
+            }).catch(e => {
+                console.log("Playback error:", e);
+                playBtn.className = "fa-solid fa-play";
+            });
+        }
+
+        function togglePlay() {
+            if (!mainAudio.src && currentPlaylist.length > 0) {
+                loadTrack(0);
+                return;
+            }
+            if (mainAudio.src) {
+                if (mainAudio.paused) {
+                    mainAudio.play().then(() => {
+                        playBtn.className = "fa-solid fa-pause";
+                    });
+                } else {
+                    mainAudio.pause();
+                    playBtn.className = "fa-solid fa-play";
+                }
+            }
+        }
+
+        function nextSong() {
+            if (currentPlaylist.length === 0) return;
+            curIndex = (curIndex + 1) % currentPlaylist.length;
+            loadTrack(curIndex);
+        }
+
+        function prevSong() {
+            if (currentPlaylist.length === 0) return;
+            curIndex = (curIndex - 1 + currentPlaylist.length) % currentPlaylist.length;
+            loadTrack(curIndex);
+        }
+
+        function seekTrack(val) {
+            if (mainAudio.duration) {
+                mainAudio.currentTime = (val / 100) * mainAudio.duration;
+            }
+        }
+
+        mainAudio.ontimeupdate = function() {
+            if (mainAudio.duration) {
+                let pct = (mainAudio.currentTime / mainAudio.duration) * 100;
+                document.getElementById('seek-bar').value = pct;
+                let cm = Math.floor(mainAudio.currentTime / 60);
+                let cs = Math.floor(mainAudio.currentTime % 60);
+                document.getElementById('curr-time').innerText = `${cm}:${cs < 10 ? '0' : ''}${cs}`;
+                let dm = Math.floor(mainAudio.duration / 60);
+                let ds = Math.floor(mainAudio.duration % 60);
+                document.getElementById('dur-time').innerText = `${dm}:${ds < 10 ? '0' : ''}${ds}`;
+            }
+        };
+
+        mainAudio.onended = function() { nextSong(); };
+
+        function setSleepTimer(minutes, btn) {
+            clearInterval(timerInterval);
+            document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            sleepTimeLeft = minutes * 60;
+            updateTimerDisplay();
+
+            timerInterval = setInterval(() => {
+                sleepTimeLeft--;
+                updateTimerDisplay();
+
+                if (sleepTimeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    stopEverything();
+                }
+            }, 1000);
+        }
+
+        function cancelSleepTimer(btn) {
+            clearInterval(timerInterval);
+            document.querySelectorAll('.timer-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('timer-display').innerText = 'Off';
+        }
+
+        function updateTimerDisplay() {
+            let m = Math.floor(sleepTimeLeft / 60);
+            let s = sleepTimeLeft % 60;
+            document.getElementById('timer-display').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+
+        function stopEverything() {
+            mainAudio.pause();
+            playBtn.className = "fa-solid fa-play";
+            stopAllBg();
+            document.getElementById('timer-display').innerText = 'Ended';
+        }
+
+        function setBgSound(type, val) {
+            const audioEl = document.getElementById(`bg-${type}`);
+            document.getElementById(`txt-${type}`).innerText = val + '%';
+            
+            if (audioEl) {
+                audioEl.volume = val / 100;
+                if (val > 0) {
+                    if (audioEl.paused) audioEl.play();
+                } else {
+                    audioEl.pause();
+                }
+            }
+        }
+
+        function stopAllBg() {
+            ['rain', 'thunder', 'ocean', 'fire', 'crickets'].forEach(t => {
+                setBgSound(t, 0);
+                document.getElementById(`vol-${t}`).value = 0;
+            });
+        }
+    </script>
 </body>
 </html>
-
