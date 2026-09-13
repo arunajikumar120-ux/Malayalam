@@ -343,7 +343,6 @@
             { name: "10. Serene Forest Acoustic", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3" }
         ];
 
-        // GitHub links optimized with raw.githubusercontent.com and connection fallback bypass
         const githubSongs = [
             { name: "Aalamadankala Mythavanalie", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Aalamadankala%20Mythavanalie.mp3" },
             { name: "Ammoommakkili", url: "https://raw.githubusercontent.com/arunajikumar120-ux/Malayalam/main/Ammoommakkili(MalluMusic.Net).mp3" },
@@ -476,7 +475,6 @@
 
             const item = currentPlaylist[curIndex];
             
-            // Adding a bypass parameter for GitHub links to prevent loading timeout errors
             let playUrl = item.url;
             if (playUrl.includes('githubusercontent.com')) {
                 playUrl += (playUrl.includes('?') ? '&' : '?') + 't=' + new Date().getTime();
@@ -484,7 +482,7 @@
 
             mainAudio.src = playUrl;
             document.getElementById('now-title').innerText = item.name;
-            document.getElementById('now-sub').innerText = `Playing ${curIndex + 1} of ${currentPlaylist.length}`;
+            document.getElementById('now-sub').innerText = `Loading...`;
 
             mainAudio.load();
             mainAudio.play().then(() => {
@@ -494,6 +492,15 @@
                 playBtn.className = "fa-solid fa-play";
             });
         }
+
+        // Buffer & Loading Event Listeners for smooth playback
+        mainAudio.addEventListener('waiting', () => {
+            document.getElementById('now-sub').innerText = `Buffering...`;
+        });
+
+        mainAudio.addEventListener('playing', () => {
+            document.getElementById('now-sub').innerText = `Playing ${curIndex + 1} of ${currentPlaylist.length}`;
+        });
 
         function togglePlay() {
             if (!mainAudio.src && currentPlaylist.length > 0) {
@@ -607,3 +614,4 @@
     </script>
 </body>
 </html>
+
