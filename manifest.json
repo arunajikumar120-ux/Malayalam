@@ -1,16 +1,17 @@
 {
-  "name": "My Malayalam App",
-  "short_name": "App",
+  "name": "Malayalam Music App",
+  "short_name": "Malayalam App",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#070a12",
+  "theme_color": "#070a12",
+  "description": "A wonderful Malayalam music web application",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "https://www.pwabuilder.com/assets/images/pwa_logo.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }
-
